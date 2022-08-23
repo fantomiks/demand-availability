@@ -1,0 +1,133 @@
+<div class="d-flex" id="wrapper">
+  <!-- Sidebar-->
+  <div class="border-end bg-white" id="sidebar-wrapper">
+    <div class="sidebar-heading border-bottom bg-light">Filter</div>
+    <div class="list-group list-group-flush">
+
+      <label for="station">Station:</label>
+      <select (change)="selectStation()" [(ngModel)]="currStation" id="station" class="form-select" data-placeholder="Choose station">
+        <option *ngFor="let station of stations" [value]="station.id">{{station.name}}</option>
+      </select>
+      </div>
+
+    <div class="list-group">
+      <p class="text-muted">Availability is calculated based on demands from previous periods.</p>
+      <p class="text-muted">Campervans and equipment of demands from previous periods whose return station matches the one selected will be counted as available.</p>
+    </div>
+  </div>
+  <!-- Page content wrapper-->
+  <div id="page-content-wrapper">
+    <!-- Page content-->
+    <div class="container-fluid">
+
+      <div class="b-example-divider b-example-vr">
+
+        <div class="calendar-container">
+          <div class="fc fc-direction-ltr">
+            <div class="fc-header-toolbar fc-toolbar">
+              <div class="fc-left">
+                <h2 class="fc-toolbar-title">{{month}} {{year}}</h2>
+              </div>
+              <div class="fc-center"></div>
+              <div class="fc-right">
+                <button (click)="today()" type="button" class="fc-today-button fc-button fc-button-primary">today</button>
+                <div class="fc-button-group">
+                  <button (click)="prev()" type="button" class="fc-prev-button fc-button fc-button-primary" aria-label="prev">
+                    <span class="fc-icon fc-icon-chevron-left"></span>
+                  </button>
+                  <button (click)="next()" type="button" class="fc-next-button fc-button fc-button-primary" aria-label="next">
+                    <span class="fc-icon fc-icon-chevron-right"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <full-calendar #calendar [options]="calendarOptions" id="calendar" class="fc fc-ltr fc-unthemed"></full-calendar>
+
+        </div>
+      </div>
+
+      <tr [hidden]="!detailsOpened" class="detailed-row">
+        <td colspan="7" *ngIf="demandDetails.id">
+
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  <div class="card-body">
+                    <a (click)="this.detailsOpened = !this.detailsOpened" class="close">&times;</a>
+                    <h4 class="card-title mb-5 mt-3">
+                      Demand #{{demandDetails.id}}
+
+                      <span class="badge m-4 mt-0 mb-0" [ngClass]="{
+                        'badge-success': this.isAvailable(),
+                        'badge-warning': !this.isAvailable()
+                    }">{{this.isAvailable() ? 'available' : 'missing'}}</span>
+                    </h4>
+
+                    <div class="hori-timeline" dir="ltr">
+                      <ul class="list-inline events">
+                        <li class="list-inline-item event-list bordered">
+                          <div class="px-4">
+                            <div class="event-date bg-soft-primary">{{demandDetails.rentalStartDate | date:'d MMM'}}</div>
+                            <h5 class="font-size-16">{{demandDetails.startStation.name}}</h5>
+                          </div>
+                        </li>
+                        <li class="list-inline-item event-list"></li>
+                        <li class="list-inline-item event-list"></li>
+                        <li class="list-inline-item event-list bordered">
+                          <div class="px-4">
+                            <div class="event-date bg-soft-primary">{{demandDetails.rentalEndDate | date:'d MMM'}}</div>
+                            <h5 class="font-size-16">{{demandDetails.endStation.name}}</h5>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <dl class="row">
+                      <dt class="col-sm-3 mb-2"><h5>Campervan</h5></dt>
+                      <dt class="col-sm-2">need</dt>
+                      <dt class="col-sm-2">available</dt>
+                      <dt class="col-sm-5">status</dt>
+                      <dd class="col-sm-3">{{demandDetails.campervan.name}}</dd>
+                      <dd class="col-sm-2">{{demandDetails.qty}}</dd>
+                      <dd class="col-sm-2">{{demandDetails.available}}</dd>
+                      <dd class="col-sm-2">
+                        <span class="badge" [ngClass]="{
+                        'badge-success': this.isCampervanAvailable(),
+                        'badge-warning': !this.isCampervanAvailable()
+                        }">
+                          {{this.isCampervanAvailable() ? 'available' : 'missing'}}
+                        </span>
+                      </dd>
+                    </dl>
+                    <dl class="row" [hidden]="demandDetails.demandItems.length == 0">
+                      <dt class="col-sm-3 mb-2"><h5>Equipments</h5></dt>
+                      <dt class="col-sm-2">need</dt>
+                      <dt class="col-sm-2">available</dt>
+                      <dt class="col-sm-5">status</dt>
+                      <ng-container *ngFor="let equipment of demandDetails.demandItems">
+                        <dd class="col-sm-3">{{equipment.equipment.name}}</dd>
+                        <dd class="col-sm-2">{{equipment.qty}}</dd>
+                        <dd class="col-sm-2">{{equipment.available}}</dd>
+                        <dd class="col-sm-5">
+                        <span class="badge" [ngClass]="{
+                        'badge-success': this.isEquipmentAvailable(equipment),
+                        'badge-warning': !this.isEquipmentAvailable(equipment)
+                        }">
+                          {{this.isEquipmentAvailable(equipment) ? 'available' : 'missing'}}
+                        </span>
+                        </dd>
+                      </ng-container>
+                    </dl>
+
+                  </div>
+                </div>
+                <!-- end card -->
+              </div>
+            </div>
+        </td>
+      </tr>
+    </div>
+  </div>
+</div>
